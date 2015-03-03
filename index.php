@@ -43,42 +43,64 @@
 
 				$cliente = array();
 
-				echo "<p><a href=/>Ordem Ascendente</a> | <a href=?descending>Ordem descendente</a></p>";
+				echo "<p><a href=/>Ordem Ascendente</a> | <a href=?descending=1>Ordem descendente</a></p>";
 
 
-				if ( !isset($_GET['descending']))
+				for ($i=0; $i<10; $i++)
 					{
-					for ($i=0; $i<10; $i++)
+					if ($i%2==0)
 						{
-						$cliente[$i] = new Cliente();
-						$cliente[$i]->setNome("Cliente do Code Education $i");
-						$cliente[$i]->setEndereco("Rua dos Estudantes, $i");
-						$cliente[$i]->setTelefone("(11) $i-$i$i$i$i-$i$i$i$i");
+						$cliente[$i] = new ClientePF();
 						$cliente[$i]->setCpf("$i$i$i$i$i$i$i$i$i-$i$i");
+						$cliente[$i]->setTipo("PF");
+						}
+					else
+						{
+						$cliente[$i] = new ClientePJ();
+						$cliente[$i]->setCnpj("00$i\\000$i");
+						$cliente[$i]->setTipo("PJ");
+						}
+					$cliente[$i]->setNome("Cliente do Code Education $i");
+					$cliente[$i]->setEndereco("Rua dos Estudantes, $i");
+					$cliente[$i]->setTelefone("(11) $i-$i$i$i$i-$i$i$i$i");
+					$cliente[$i]->setEstrelas($i);
+					}
 
-						echo "<p><a href=?details=$i>" . $cliente[$i]->getNome() . "</a></p>";
+				// IMPRIMINDO NOMES DOS CLIENTES
+				if ( filter_input(INPUT_GET, "descending")!=null )
+					{
+					for ($i=9; $i>=0; $i--)
+						{
+						print "<p><a href='?details=$i'>" . $cliente[$i]->getNome() . "</a></p>";
 						}
 					}
 				else
 					{
-					for ($i=9; $i>=0; $i--)
+					for ($i=0; $i<10; $i++)
 						{
-						$cliente[$i] = new Cliente();
-						$cliente[$i]->setNome("Cliente do Code Education $i");
-						$cliente[$i]->setEndereco("Rua dos Estudantes, $i");
-						$cliente[$i]->setTelefone("(11) $i-$i$i$i$i-$i$i$i$i");
-						$cliente[$i]->setCpf("$i$i$i$i$i$i$i$i$i-$i$i");
-
-						echo "<p><a href=?details=$i>" . $cliente[$i]->getNome() . "</a></p>";
+						print "<p><a href='?details=$i'>" . $cliente[$i]->getNome() . "</a></p>";
 						}
 					}
 
-				if ( isset($_GET['details']) )
+				if ( filter_input(INPUT_GET, "details")!=null )
 					{
 					echo "<br /><p>Cliente selecionado para exibir detalhes:</p>";
 					echo "<p>Nome: " . $cliente[$_GET['details']]->getNome() . "</p>";
+					echo "<p>Tipo: " . $cliente[$_GET['details']]->getTipo() . "</p>";
+					echo "<p>Estrelas: " . $cliente[$_GET['details']]->getEstrelas() . "</p>";
 					echo "<p>Endere&ccedil;o: " . $cliente[$_GET['details']]->getEndereco() . "</p>";
-					echo "<p>CPF: " . $cliente[$_GET['details']]->getCpf() . "</p>";
+					if ($cliente[$_GET['details']] instanceof ClientePF)
+						{
+						echo "<p>CPF: " . $cliente[$_GET['details']]->getCpf() . "</p>";
+						}
+					else if ($cliente[$_GET['details']] instanceof ClientePJ)
+						{
+						echo "<p>CNPJ: " . $cliente[$_GET['details']]->getCnpj() . "</p>";
+						}
+					else
+						{
+						echo "<p>Erro ao acessar detalhe do cliente</p>";
+						}
 					echo "<p>Telefone: " . $cliente[$_GET['details']]->getTelefone() . "</p>";
 
 					}
