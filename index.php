@@ -39,7 +39,20 @@
 		<div class="jumbotron">
 			<div style='text-align:center;font-size:12pt'>
 				<?php
-				require_once "Cliente.php";
+
+				define ('CLASS_DIR', 'src/');
+
+				set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR); # path_separator = depende do OS
+				spl_autoload_register(); # registra automaticamente todas as classes que estao dentro do src
+
+
+
+				echo "Repita comigo: <br />";
+				for ($i=0;$i<6;$i++)
+					{
+					echo "Refatorar &eacute; o oh do borogodoh<br />";
+					}
+				echo "<br />";
 
 				$cliente = array();
 
@@ -50,13 +63,13 @@
 					{
 					if ($i%2==0)
 						{
-						$cliente[$i] = new ClientePF();
+						$cliente[$i] = new Maia\Cliente\ClientePF();
 						$cliente[$i]->setCpf("$i$i$i$i$i$i$i$i$i-$i$i");
 						$cliente[$i]->setTipo("PF");
 						}
 					else
 						{
-						$cliente[$i] = new ClientePJ();
+						$cliente[$i] = new Maia\Cliente\ClientePJ();
 						$cliente[$i]->setCnpj("00$i\\000$i");
 						$cliente[$i]->setTipo("PJ");
 						}
@@ -89,11 +102,11 @@
 					echo "<p>Tipo: " . $cliente[$_GET['details']]->getTipo() . "</p>";
 					echo "<p>Estrelas: " . $cliente[$_GET['details']]->getEstrelas() . "</p>";
 					echo "<p>Endere&ccedil;o: " . $cliente[$_GET['details']]->getEndereco() . "</p>";
-					if ($cliente[$_GET['details']] instanceof ClientePF)
+					if ($cliente[$_GET['details']] instanceof Maia\Cliente\ClientePF)
 						{
 						echo "<p>CPF: " . $cliente[$_GET['details']]->getCpf() . "</p>";
 						}
-					else if ($cliente[$_GET['details']] instanceof ClientePJ)
+					else if ($cliente[$_GET['details']] instanceof Maia\Cliente\ClientePJ)
 						{
 						echo "<p>CNPJ: " . $cliente[$_GET['details']]->getCnpj() . "</p>";
 						}
