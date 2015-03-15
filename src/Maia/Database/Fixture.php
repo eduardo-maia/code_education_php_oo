@@ -5,7 +5,7 @@
 namespace Maia\Database;
 
 use DB;
-use Maia\Cliente\Cliente;
+use Maia\Cliente\ClientePF;
 
 class Fixture
 {
@@ -14,21 +14,23 @@ class Fixture
     private $clientes;
 
     # Você terá que injetar no construtor dessa classe um objeto PDO (somente PDO).
-    private function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->conn = DB::connect(); # isso nao é legal porque esta criando outro objeto automaticamente, conforme explicado em aula
+        $this->conn = $pdo;
     }
 
     # Crie um método chamado persist dentro dessa mesma classe;
     # esse método deverá receber como dependência um objeto do tipo Cliente
-    private function persist(Cliente $c)
+    public function persist(Cliente $c)
     {
         $this->clientes[]=$c;
     }
 
 }
 
-$c = new Maia\Cliente\Cliente();
+$f = new Fixture(DB::connect());
+
+$c = new \Maia\Cliente\ClientePF();
 $c->setEstrelas(1);
 print $c->getEstrelas();
 exit;
