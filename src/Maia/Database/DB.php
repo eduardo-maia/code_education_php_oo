@@ -1,4 +1,5 @@
 <?php
+namespace Maia\Database;
 
 class DB
 	{
