@@ -4,8 +4,6 @@
 
 namespace Maia\Database;
 
-use DB;
-use Maia\Cliente\ClientePF;
 
 class Fixture
 {
@@ -27,6 +25,28 @@ class Fixture
     }
 
 }
+
+# define ('CLASS_DIR', 'src/');
+# set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR); # path_separator = depende do OS
+# spl_autoload_register(); # registra automaticamente todas as classes que estao dentro do src
+
+#define('CLASS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR);
+define('CLASS_DIR', __DIR__ . DIRECTORY_SEPARATOR);
+set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR);
+spl_autoload_register(function($className) {
+    $path = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+    $file = CLASS_DIR . $path . '.php';
+    if (is_file($file)) {
+        require_once($file);
+    } else {
+        throw new \ErrorException("Could not load class {$className}. File not found: {$file}");
+        die();
+    }
+});
+
+use DB;
+use Maia\Cliente\ClientePF;
+
 
 $f = new Fixture(DB::connect());
 
