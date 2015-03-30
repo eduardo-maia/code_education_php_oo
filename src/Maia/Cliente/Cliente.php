@@ -27,6 +27,10 @@ class Cliente implements ClienteInterface
 
 	public function setTipo($tipo=null)
 	{
+        if ($tipo!="PF" && $tipo!="PJ") {
+            throw new \ErrorException("Tipo deve ser PF ou PJ, mas foi informado $tipo");
+            die();
+        }
 		$this->tipo = $tipo;
 	}
 
