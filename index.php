@@ -40,9 +40,6 @@
 			<div style='text-align:center;font-size:12pt'>
 				<?php
 
-				# define ('CLASS_DIR', 'src/');
-				# set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR); # path_separator = depende do OS
-				# spl_autoload_register(); # registra automaticamente todas as classes que estao dentro do src
                 define('CLASS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR);
                 set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR);
                 spl_autoload_register(function($className) {
@@ -56,77 +53,90 @@
                     }
                 });
 
-
-				echo "Repita comigo: <br />";
-				for ($i=0;$i<6;$i++)
-					{
-					echo "Refatorar &eacute; o oh do borogodoh<br />";
-					}
-				echo "<br />";
-
-				$cliente = array();
-
 				echo "<p><a href=/>Ordem Ascendente</a> | <a href=?descending=1>Ordem descendente</a></p>";
 
+                ############################
+                # caberia um MVC aqui
+                ############################
 
-				for ($i=0; $i<10; $i++)
-					{
-					if ($i%2==0)
-						{
-						$cliente[$i] = new Maia\Cliente\ClientePF();
-						$cliente[$i]->setCpf("$i$i$i$i$i$i$i$i$i-$i$i");
-						$cliente[$i]->setTipo("PF");
-						}
-					else
-						{
-						$cliente[$i] = new Maia\Cliente\ClientePJ();
-						$cliente[$i]->setCnpj("00$i\\000$i");
-						$cliente[$i]->setTipo("PJ");
-						}
-					$cliente[$i]->setNome("Cliente do Code Education $i");
-					$cliente[$i]->setEndereco("Rua dos Estudantes, $i");
-					$cliente[$i]->setTelefone("(11) $i-$i$i$i$i-$i$i$i$i");
-					$cliente[$i]->setEstrelas($i);
-					}
+                # não é boa prática, pois aloca memória desnecessariamente.
+                # Estou fazendo apenas para demonstração de OO, já que
+                # MVC em PHP não foi ensinado até o momento.
+                $clientes = array();
 
-				// IMPRIMINDO NOMES DOS CLIENTES
-				if ( filter_input(INPUT_GET, "descending")!=null )
-					{
-					for ($i=9; $i>=0; $i--)
-						{
-						print "<p><a href='?details=$i'>" . $cliente[$i]->getNome() . "</a></p>";
-						}
-					}
-				else
-					{
-					for ($i=0; $i<10; $i++)
-						{
-						print "<p><a href='?details=$i'>" . $cliente[$i]->getNome() . "</a></p>";
-						}
-					}
+                # select * não é boa prática, mas é o que foi ensinado
+                $q="select * from cliente left outer join clientepf ON clientepf.cliente_id = cliente.id left outer join clientepj on clientepj.cliente_id=cliente.id ";
+                if ( filter_input(INPUT_GET, "details")!=null )
+                {
+                    $q.=" WHERE cliente.id=" . $_GET['details'];
+                }
+                if ( isset($_GET['descending']) )
+                {
+                    $q.=" ORDER BY cliente.nome DESC";
+                }
+                else
+                {
+                    $q.=" ORDER BY cliente.nome ASC";
+                }
+                # print $q;
+                use Maia\Database\DB;
+                $conexao = new Maia\Database\DB();
+                $conexao = DB::connect();
+                $stmt = $conexao->prepare($q);
+                $stmt->execute();
+                $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-				if ( filter_input(INPUT_GET, "details")!=null )
-					{
-					echo "<br /><p>Cliente selecionado para exibir detalhes:</p>";
-					echo "<p>Nome: " . $cliente[$_GET['details']]->getNome() . "</p>";
-					echo "<p>Tipo: " . $cliente[$_GET['details']]->getTipo() . "</p>";
-					echo "<p>Estrelas: " . $cliente[$_GET['details']]->getEstrelas() . "</p>";
-					echo "<p>Endere&ccedil;o: " . $cliente[$_GET['details']]->getEndereco() . "</p>";
-					if ($cliente[$_GET['details']] instanceof Maia\Cliente\ClientePF)
-						{
-						echo "<p>CPF: " . $cliente[$_GET['details']]->getCpf() . "</p>";
-						}
-					else if ($cliente[$_GET['details']] instanceof Maia\Cliente\ClientePJ)
-						{
-						echo "<p>CNPJ: " . $cliente[$_GET['details']]->getCnpj() . "</p>";
-						}
-					else
-						{
-						echo "<p>Erro ao acessar detalhe do cliente</p>";
-						}
-					echo "<p>Telefone: " . $cliente[$_GET['details']]->getTelefone() . "</p>";
+                if (sizeof($records)==0)
+                {
+                    echo "<div align='center'>Banco de dados vazio? Nenhum resultado encontrado... talvez você deva rodar a fixture?</div>";
+                }
+                else
+                {
+                        foreach ($records as $record)
+                        {
+                            if ($record['tipo']=='PF')
+                            {
+                                $clientes[] = new Maia\Cliente\ClientePF();
+                                $clientes[count($clientes)-1]->setCpf($record['cpf']);
+                            }
+                            elseif ($record['tipo']=='PJ')
+                            {
+                                $clientes[] = new Maia\Cliente\ClientePJ();
+                                $clientes[count($clientes)-1]->setCnpj($record['cnpj']);
+                            }
+                            else
+                            {
+                                echo "Tivemos um tipo inesperado aqui: " . $record['tipo'];
+                            }
+                            $clientes[count($clientes)-1]->setId($record['id']);
+                            $clientes[count($clientes)-1]->setNome($record['nome']);
+                            $clientes[count($clientes)-1]->setTipo($record['tipo']);
+                            $clientes[count($clientes)-1]->setNome($record['nome']);
+                            $clientes[count($clientes)-1]->setEstrelas($record['estrelas']);
+                            $clientes[count($clientes)-1]->setEndereco($record['endereco']);
+                        }
+                    for ($i=0; $i<count($clientes);$i++)
+                        {
+                            echo "<p><a href='?details=" . $clientes[$i]->getId() . "'>" . $clientes[$i]->getNome() . "</a></p>";
+                            if ( filter_input(INPUT_GET, "details")!=null )
+                            {
+                                echo "Endereco: " . $clientes[$i]->getEndereco();
+                                echo "<br />Telefone: " . $clientes[$i]->getTelefone();
+                                echo "<br />Estrelas: " . $clientes[$i]->getEstrelas();
+                                echo "<br />Tipo: " . $clientes[$i]->getTipo();
+                                if ($clientes[$i]->getTipo() =='PF')
+                                {
+                                    echo "<br />CPF: " . $clientes[$i]->getCpf();
+                                }
+                                else
+                                {
+                                    echo "<br />CNPJ: " . $clientes[$i]->getCnpj();
+                                }
+                            }
+                        }
 
-					}
+                }
+
 
 				?>
 			</div>

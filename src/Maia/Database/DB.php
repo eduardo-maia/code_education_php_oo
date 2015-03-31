@@ -9,7 +9,7 @@ class DB
     const user = 'root'; # queria deixar claro que jamais faria isso em sistema produtivo...
     const password = '';
 
-	public static function connect()
+	public function connect()
 	    {
 		try
 			{
@@ -19,8 +19,10 @@ class DB
 			{
 			echo $e->getMessage() . "\n";
 			echo $e->getTraceAsString() . "\n";
-			}
+			throw new \ErrorException($e->getMessage());
+            }
 	    }
+
 
 }
 
