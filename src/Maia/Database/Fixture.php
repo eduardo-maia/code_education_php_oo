@@ -96,7 +96,7 @@ class Fixture
             cliente_id tinyint,
             Primary Key(cliente_id),
             Foreign Key (cliente_id) references cliente(id),
-            cpf int(9) NOT NULL
+            cpf varchar(9) NOT NULL
             ) ENGINE=InnoDB;
             ");
         echo " - OK\n";
@@ -111,7 +111,7 @@ class Fixture
             cliente_id tinyint,
             Primary Key(cliente_id),
             Foreign Key (cliente_id) references cliente(id),
-            cnpj int(15) NOT NULL
+            cnpj varchar(20) NOT NULL
             ) ENGINE=InnoDB;
             ");
         echo " - OK\n";
