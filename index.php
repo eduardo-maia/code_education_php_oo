@@ -1,3 +1,7 @@
+<?php
+error_reporting(E_ALL);
+?>
+
 <html>
 	<head>
 		<title>Code Education</title>

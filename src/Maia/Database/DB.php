@@ -9,7 +9,7 @@ class DB
     const user = 'root'; # queria deixar claro que jamais faria isso em sistema produtivo...
     const password = '';
 
-	public function connect()
+	public static function connect()
 	    {
 		try
 			{
